@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+message TemperatureRequest{
+}
+
+message TemperatureReply{
+    string image = 1;
+    string temperatures = 2;
+    string timestamp = 3;
+}
+
+service TemperatureServer {
+    rpc getTemperature (TemperatureRequest) returns (stream TemperatureReply) {}
+}

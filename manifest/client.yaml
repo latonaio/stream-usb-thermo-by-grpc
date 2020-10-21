@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    run: stream-usb-thermo-by-grpc-client
+  name: stream-usb-thermo-by-grpc-client
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      run: stream-usb-thermo-by-grpc-client
+  strategy: 
+    rollingUpdate:
+  template:
+    metadata:
+      labels:
+        run: stream-usb-thermo-by-grpc-client
+    spec:
+      hostname: stream-usb-thermo-by-grpc-client
+      containers:
+      - image: stream-usb-thermo-by-grpc-client:latest
+        name: stream-usb-thermo-by-grpc-client
+        ports: 
+        - containerPort: 12001
+          protocol: TCP
+        imagePullPolicy: IfNotPresent
+        resources: {}
+        volumeMounts: 
+        - name: data
+          mountPath: /var/lib/aion/Data
+      volumes: 
+      - name: data
+        hostPath:
+          path: /var/lib/aion/Data
+
+status: {}
+
+---
+  apiVersion: v1
+  kind: Service
+  metadata:
+    labels:
+      run: stream-usb-thermo-by-grpc-client
+    name: stream-usb-thermo-by-grpc-client
+  spec:
+    ports:
+    - port: 12001
+      protocol: TCP
+      targetPort: 12001
+    selector:
+      run: stream-usb-thermo-by-grpc-client
+    type: ClusterIP
+  status:
+   loadBalancer: {}
+---
+

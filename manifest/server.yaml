@@ -1,0 +1,81 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    run: stream-usb-thermo-by-grpc-server
+  name: stream-usb-thermo-by-grpc-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      run: stream-usb-thermo-by-grpc-server
+  strategy:
+    rollingUpdate:
+  template:
+    metadata:
+      labels:
+        run: stream-usb-thermo-by-grpc-server
+    spec:
+      hostname: stream-usb-thermo-by-grpc-server
+      hostNetwork: true
+      containers:
+      - image: stream-usb-thermo-by-grpc-server:latest
+        name: stream-usb-thermo-by-grpc-server
+        ports:
+        - containerPort: 50051
+          protocol: TCP
+        env:
+          - name: DISPLAY
+            value: :1.0
+          - name: DISP_SW
+            value: "on"
+          - name: KANBAN_MODE
+            value: "main_without_camera"
+        imagePullPolicy: IfNotPresent
+        resources: {}
+        volumeMounts:
+        - name: data
+          mountPath: /var/lib/aion/Data
+        - name: video0
+          mountPath: /dev/video0
+        - name: video1
+          mountPath: /dev/video1
+        - name: display
+          mountPath: /tmp/.X11-unix/
+        securityContext:
+          privileged: true
+      volumes:
+      - name: data
+        hostPath:
+          path: /var/lib/aion/Data
+      - name: video0
+        hostPath:
+          path: /dev/video0
+      - name: video1
+        hostPath:
+          path: /dev/video1
+      - name: display
+        hostPath:
+          path: /tmp/.X11-unix/
+
+status: {}
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    run: stream-usb-thermo-by-grpc-server
+  name: stream-usb-thermo-by-grpc-server
+spec:
+  ports:
+  - port: 50051
+    protocol: TCP
+    targetPort: 50051
+  selector:
+    run: stream-usb-thermo-by-grpc-server
+  type: ClusterIP
+status:
+  loadBalancer: {}
+---
+
